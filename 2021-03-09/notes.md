@@ -1,0 +1,1 @@
+# Obsługa interfejsów sieciowych funkcją ioctl
