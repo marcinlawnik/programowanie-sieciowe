@@ -91,7 +91,7 @@ int main(int argc, char **argv)
         len = recvfrom(sfd, frame, ETH_FRAME_LEN, 0, (struct sockaddr *)&sall, &sl);
 
         if (len < 0) {
-            printf("Network recieving error, are you root?");
+            printf("Network recieving error, are you root?\n");
             break;
         }
 
