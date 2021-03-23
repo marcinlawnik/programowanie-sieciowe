@@ -22,11 +22,13 @@
 int main(int argc, char** argv) {
     int sfd, i;
     ssize_t len;
+    socklen_t sl;
     char* frame;
     char* fdata;
     struct ethhdr* fhead;
     struct ifreq ifr;
     struct sockaddr_ll sall;
+    struct sockaddr_ll sall2;
 
     sfd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_CUSTOM));
     strncpy(ifr.ifr_name, argv[1], IFNAMSIZ);
@@ -44,19 +46,29 @@ int main(int argc, char** argv) {
         memset(frame, 0, ETH_FRAME_LEN);
         fhead = (struct ethhdr*) frame;
         fdata = frame + ETH_HLEN;
-        len = recvfrom(sfd, frame, ETH_FRAME_LEN, 0, NULL, NULL);
+        len = recvfrom(sfd, frame, ETH_FRAME_LEN, 0, (struct sockaddr*) &sall2, &sl);
+        //rozmiar, od
         printf("[%dB] %02x:%02x:%02x:%02x:%02x:%02x -> ", (int)len,
                fhead->h_source[0], fhead->h_source[1], fhead->h_source[2],
                fhead->h_source[3], fhead->h_source[4], fhead->h_source[5]);
+        //do
         printf("%02x:%02x:%02x:%02x:%02x:%02x | ",
                fhead->h_dest[0], fhead->h_dest[1], fhead->h_dest[2],
                fhead->h_dest[3], fhead->h_dest[4], fhead->h_dest[5]);
+        //dane
         printf("%s\n", fdata);
         for (i = 0; i < len ; i++) {
             printf("%02x ", (unsigned char) frame[i]);
             if ((i + 1) % 16 == 0)
                 printf("\n");
         }
+        //sll_pkttype
+        char buf[16];
+        snprintf(buf, sizeof(buf), "0x%02x", sall2.sll_pkttype);
+        printf("%s\n", buf);
+        //EtherType
+        snprintf(buf, sizeof(buf), "0x%02x", ntohs(fhead->h_proto));
+        printf("%s\n", buf);
         printf("\n\n");
         free(frame);
     }
