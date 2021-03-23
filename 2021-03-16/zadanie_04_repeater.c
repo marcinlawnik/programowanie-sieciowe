@@ -6,6 +6,8 @@
  * pod adres MAC, który podawany jest jako jego drugi argument wywołania;
  * • program powraca do odbierania kolejnej ramki.
  * Jako wartosci EtherType uzyj liczby 0x8888.
+ *
+ *
 **/
 
 #include <arpa/inet.h>
@@ -87,6 +89,12 @@ int main(int argc, char **argv)
         fhead = (struct ethhdr *)frame;
         fdata = frame + ETH_HLEN;
         len = recvfrom(sfd, frame, ETH_FRAME_LEN, 0, (struct sockaddr *)&sall, &sl);
+
+        if (len < 0) {
+            printf("Network recieving error, are you root?");
+            break;
+        }
+
         printf("[%dB] %02x:%02x:%02x:%02x:%02x:%02x -> ", (int)len,
                fhead->h_source[0], fhead->h_source[1], fhead->h_source[2],
                fhead->h_source[3], fhead->h_source[4], fhead->h_source[5]);
@@ -104,6 +112,6 @@ int main(int argc, char **argv)
         sendPacket(argv[1], argv[2], fdata);
         free(frame);
     }
-//    close(sfd);
-//    return EXIT_SUCCESS;
+    close(sfd);
+    return EXIT_SUCCESS;
 }
