@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     rtlen += atp->rta_len;
 
     req.nl.nlmsg_len = NLMSG_LENGTH(rtlen);
-    req.nl.nlmsg_type = RTM_NEWROUTE;
+    req.nl.nlmsg_type = RTM_DELROUTE;
     req.nl.nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE;
     req.nl.nlmsg_seq = 0;
     req.nl.nlmsg_pid = getpid();
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     req.rt.rtm_family = AF_INET;
     req.rt.rtm_dst_len = atoi(argv[2]);
     req.rt.rtm_table = RT_TABLE_MAIN;
-    req.rt.rtm_protocol = RTPROT_STATIC;
+    req.rt.rtm_protocol = RTPROT_UNSPEC;
     req.rt.rtm_scope = RT_SCOPE_UNIVERSE;
     req.rt.rtm_type = RTN_UNICAST;
 
