@@ -8,8 +8,6 @@
  *
  */
 
-
-#include <netdb.h>
 #include <netinet/in.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,19 +18,6 @@ int main(int argc, char** argv) {
     socklen_t sl;
     int sfd, cfd, on = 1;
     struct sockaddr_in saddr, caddr;
-
-    int xfd, rc;
-    char buf[128];
-    struct sockaddr_in xaddr;
-    struct hostent* addrent;
-
-    addrent = gethostbyname(argv[1]);
-    xfd = socket(PF_INET, SOCK_STREAM, 0);
-    memset(&xaddr, 0, sizeof(xaddr));
-    xaddr.sin_family = AF_INET;
-    xaddr.sin_port = htons(atoi(argv[2]));
-    memcpy(&xaddr.sin_addr.s_addr, addrent->h_addr, addrent->h_length);
-    connect(xfd, (struct sockaddr*) &xaddr, sizeof(xaddr));
 
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin_family = AF_INET;
@@ -46,17 +31,10 @@ int main(int argc, char** argv) {
         memset(&caddr, 0, sizeof(caddr));
         sl = sizeof(caddr);
         cfd = accept(sfd, (struct sockaddr*) &caddr, &sl);
-        rc = read(cfd, buf, 128);
+        write(cfd, "Hello World!\n", 14);
         //sleep(1200);
         close(cfd);
-
-        write(xfd, buf, strlen(buf));
-        memset(buf, 0, sizeof bus);
     }
-
-    close(xfd);
     close(sfd);
     return EXIT_SUCCESS;
 }
-
-
