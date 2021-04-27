@@ -94,6 +94,7 @@ int main(int argc, char **argv) {
         rc = recvfrom(sfd, &buf, sizeof(buf), 0, (struct sockaddr*) &rcv, &sl);
         gettimeofday(&in, NULL);
         if (rcv.sin_addr.s_addr == snd.sin_addr.s_addr) {
+            if (rep->type != ICMP_ECHOREPLY) continue;
             tdiff(&out, &in);
             rtt = out.tv_sec * 1000000 + out.tv_usec;
             rx++;
