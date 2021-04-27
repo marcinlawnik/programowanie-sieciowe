@@ -21,25 +21,34 @@
 #define IPPROTO_CUSTOM 222
 
 int main(int argc, char **argv) {
-    int sfd, rc;
+    int sfd, rc, next_sock;
     char buf[65536], saddr[16], daddr[16];
     char *data;
     socklen_t sl;
     struct sockaddr_in addr;
+    struct sockaddr_in next_addr;
     struct iphdr *ip;
 
     sfd = socket(PF_INET, SOCK_RAW, IPPROTO_CUSTOM);
-    while(1) {
-        memset(&addr, 0, sizeof(addr));
-        sl = sizeof(addr);
-        rc = recvfrom(sfd, buf, sizeof(buf), 0, (struct sockaddr*) &addr, &sl);
-        ip = (struct iphdr*) &buf;
+
+    memset(&addr, 0, sizeof(addr));
+    sl = sizeof(addr);
+    rc = recvfrom(sfd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, &sl);
+    ip = (struct iphdr *)&buf;
+    while (1) {
         if (ip->protocol == IPPROTO_CUSTOM) {
-            inet_ntop(AF_INET, &ip->saddr, (char*) &saddr, 16);
-            inet_ntop(AF_INET, &ip->daddr, (char*) &daddr, 16);
-            data = (char*) ip + (ip->ihl * 4);
+            inet_ntop(AF_INET, &ip->saddr, (char *)&saddr, 16);
+            inet_ntop(AF_INET, &ip->daddr, (char *)&daddr, 16);
+            data = (char *)ip + (ip->ihl * 4);
             printf("[%dB] %s -> %s | %s\n", rc - (ip->ihl * 4), saddr, daddr, data);
-            break;
+            next_sock = socket(PF_INET, SOCK_RAW, IPPROTO_CUSTOM);
+            memset(&next_addr, 0, sizeof(next_addr));
+            next_addr.sin_family = AF_INET;
+            next_addr.sin_port = 0;
+            next_addr.sin_addr.s_addr = inet_addr(argv[1]);
+            sendto(next_sock, buf, strlen(buf), 0, (struct sockaddr *)&next_addr,
+                   sizeof(next_addr));
+            close(next_sock);
         }
     }
     close(sfd);
