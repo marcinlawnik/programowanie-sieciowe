@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2021 Michal Kalewski <mkalewski at cs.put.poznan.pl>
  *
- * Compilation:  gcc -Wall ./rtdel.c -o ./rtdel
+ * Compilation:  gcc -Wall ./zadanie_04_rtdel.c -o ./zadanie_04_rtdel
  * Usage:        ./rtdel NETIP MASK GWIP
  * NOTE:         This program requires root privileges.
  *
