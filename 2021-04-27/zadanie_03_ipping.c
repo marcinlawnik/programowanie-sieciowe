@@ -99,6 +99,7 @@ int main(int argc, char **argv) {
             rx++;
             ip = (struct iphdr*) &buf;
             rep = (struct icmphdr*) ((char*) buf + (ip->ihl * 4));
+            if (rep->type != ICMP_ECHOREPLY) continue;
             printf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
                    rc - (ip->ihl * 4), argv[1], ntohs(rep->un.echo.sequence),
                    ip->ttl, rtt/1000.0);
