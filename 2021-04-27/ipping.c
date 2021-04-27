@@ -94,12 +94,12 @@ int main(int argc, char **argv) {
         rc = recvfrom(sfd, &buf, sizeof(buf), 0, (struct sockaddr*) &rcv, &sl);
         gettimeofday(&in, NULL);
         if (rcv.sin_addr.s_addr == snd.sin_addr.s_addr) {
-            if (rep->type != ICMP_ECHOREPLY) continue;
             tdiff(&out, &in);
             rtt = out.tv_sec * 1000000 + out.tv_usec;
             rx++;
             ip = (struct iphdr*) &buf;
             rep = (struct icmphdr*) ((char*) buf + (ip->ihl * 4));
+            if (rep->type != ICMP_ECHOREPLY) continue;
             printf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n",
                    rc - (ip->ihl * 4), argv[1], ntohs(rep->un.echo.sequence),
                    ip->ttl, rtt/1000.0);
