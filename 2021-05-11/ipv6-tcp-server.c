@@ -18,6 +18,7 @@ int main(int argc, char** argv) {
     socklen_t sl;
     int sfd, cfd, on = 1;
     struct sockaddr_in6 saddr, caddr;
+    char * ip;
 
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin6_family = AF_INET6;
@@ -29,6 +30,7 @@ int main(int argc, char** argv) {
     listen(sfd, 5);
     while(1) {
         memset(&caddr, 0, sizeof(caddr));
+        memset(&ip, 0, sizeof(ip));
         sl = sizeof(caddr);
         cfd = accept(sfd, (struct sockaddr*) &caddr, &sl);
         inet_ntop(AF_INET6, caddr.sin6_addr.s6_addr, ip, sizeof (ip));
