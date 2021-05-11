@@ -47,10 +47,10 @@ int main(int argc, char **argv) {
             memset(&next_addr, 0, sizeof(next_addr));
             next_addr.sin_family = AF_INET;
             next_addr.sin_port = 0;
-            next_addr.sin_addr.s_addr = inet_addr(argv[0]);
+            next_addr.sin_addr.s_addr = inet_addr(argv[1]);
             sendto(next_sock, buf, strlen(buf), 0, (struct sockaddr *)&next_addr,
                    sizeof(next_addr));
-            printf("[%dB] %s -> %s | %s\n", rc - (ip->ihl * 4), daddr, argv[0], data);
+            printf("[%dB] %s -> %s | %s\n", rc - (ip->ihl * 4), daddr, argv[1], data);
             close(next_sock);
         }
     }
