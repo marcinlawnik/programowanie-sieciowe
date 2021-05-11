@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
     socklen_t sl;
     int sfd, cfd, on = 1;
     struct sockaddr_in6 saddr, caddr;
-    char * ip;
+    char ip[120];
 
     memset(&saddr, 0, sizeof(saddr));
     saddr.sin6_family = AF_INET6;
