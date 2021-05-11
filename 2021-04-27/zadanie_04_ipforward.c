@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
             next_addr.sin_addr.s_addr = inet_addr(argv[0]);
             sendto(next_sock, buf, strlen(buf), 0, (struct sockaddr *)&next_addr,
                    sizeof(next_addr));
-            printf("[%dB] %s -> %s | %s\n", rc - (ip->ihl * 4), daddr, next_addr, data);
+            printf("[%dB] %s -> %s | %s\n", rc - (ip->ihl * 4), daddr, inet_addr(argv[0]), data);
             close(next_sock);
         }
     }
