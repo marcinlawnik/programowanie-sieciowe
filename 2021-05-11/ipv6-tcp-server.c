@@ -31,6 +31,8 @@ int main(int argc, char** argv) {
         memset(&caddr, 0, sizeof(caddr));
         sl = sizeof(caddr);
         cfd = accept(sfd, (struct sockaddr*) &caddr, &sl);
+        inet_ntop(AF_INET6, caddr.sin6_addr.s6_addr, ip, sizeof (ip));
+        printf("Connection: %s \n", ip);
         write(cfd, "Hello World!\n", 14);
         close(cfd);
     }
