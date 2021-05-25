@@ -16,19 +16,24 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
+#define LOCAL_TIME_STREAM 0
+#define GREENWICH_MEAN_TIME_STREAM 1
+
 int main(int argc, char **argv) {
-    int sfd, on = 1, no, i;
+    int sfd, cfd, on = 1, no, i;
     socklen_t sl;
     char buf[1024];
+    time_t now;
     struct sctp_event_subscribe events;
     struct sctp_paddrparams heartbeat;
     struct sctp_rtoinfo rtoinfo;
     struct sockaddr_in *laddrs[5];
     struct sockaddr_in addr, raddr;
 
-    sfd = socket(PF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
+    sfd = socket(PF_INET, SOCK_STREAM, IPPROTO_SCTP);
     setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -53,14 +58,22 @@ int main(int argc, char **argv) {
         printf("ADDR %d: %s:%d\n", i + 1, inet_ntoa((*laddrs)[i].sin_addr),
                ntohs((*laddrs)[i].sin_port));
     sctp_freeladdrs((struct sockaddr*) *laddrs);
+    memset(&raddr, 0, sizeof(raddr));
+    memset(&buf, 0, sizeof(buf));
+    sl = sizeof(raddr);
+    cfd = accept(sfd, (struct sockaddr*) &raddr, &sl);
+    printf("new connection: %s:%d\n", inet_ntoa(raddr.sin_addr),
+           raddr.sin_port);
     while (1) {
-        memset(&raddr, 0, sizeof(raddr));
-        memset(&buf, 0, sizeof(buf));
-        sl = sizeof(raddr);
-        no = recvfrom(sfd, buf, sizeof(buf), 0, (struct sockaddr*) &raddr, &sl);
-        printf("[%dB] from %s: %s\n", no, inet_ntoa(raddr.sin_addr), buf);
-        sendto(sfd, buf, no, 0, (struct sockaddr*) &raddr, sl);
+        now = time(NULL);
+        snprintf(buf, 1024, "%s", ctime(&now));
+        sctp_sendmsg(cfd, (void*) buf, (size_t) strlen(buf) + 1, NULL, 0, 0, 0,
+                     LOCAL_TIME_STREAM, 0, 0);
+        snprintf(buf, 1024, "%s", asctime(gmtime(&now)));
+        sctp_sendmsg(cfd, (void*) buf, (size_t) strlen(buf) + 1, NULL, 0, 0, 0,
+                     GREENWICH_MEAN_TIME_STREAM, 0, 0);
         sleep(1);
     }
+    close(cfd);
     close(sfd);
 }

@@ -18,8 +18,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define LOCAL_TIME_STREAM 0
+#define GREENWICH_MEAN_TIME_STREAM 1
+
+
 int main(int argc, char **argv) {
-    int sfd, no, i;
+    int sfd, no, i, flags;
     socklen_t sl;
     char buf[1024];
     struct sctp_event_subscribe events;
@@ -28,6 +32,7 @@ int main(int argc, char **argv) {
     struct sctp_rtoinfo rtoinfo;
     struct sockaddr_in *paddrs[5];
     struct sockaddr_in saddr, raddr;
+    struct sctp_sndrcvinfo sndrcvinfo;
 
     sfd = socket(AF_INET, SOCK_STREAM, IPPROTO_SCTP);
     memset(&saddr, 0, sizeof(saddr));
@@ -58,13 +63,19 @@ int main(int argc, char **argv) {
                ntohs((*paddrs)[i].sin_port));
     sctp_freepaddrs((struct sockaddr*)*paddrs);
     while (1) {
-        write(sfd, "Echo message", 13);
+        flags = 0;
+        int rc = sctp_recvmsg(sfd, (void*) buf, sizeof(buf), (struct sockaddr*) NULL,0, &sndrcvinfo, &flags);
+        buf[rc] = 0;
+        printf("%d", rc);
+        if (sndrcvinfo.sinfo_stream == LOCAL_TIME_STREAM) {
+            printf("(Local) %s", buf);
+        } else if (sndrcvinfo.sinfo_stream == GREENWICH_MEAN_TIME_STREAM) {
+            printf("(GMT)   %s", buf);
+        }
+
         memset(&raddr, 0, sizeof(raddr));
         memset(&buf, 0, sizeof(buf));
         sl = sizeof(raddr);
-        no = recvfrom(sfd, buf, sizeof(buf), 0, (struct sockaddr*) &raddr, &sl);
-        printf("[%dB] from %s: %s\n", no, inet_ntoa(raddr.sin_addr), buf);
-        sleep(1);
     }
     close(sfd);
 }
