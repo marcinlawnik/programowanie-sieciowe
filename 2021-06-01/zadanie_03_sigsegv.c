@@ -39,7 +39,8 @@ int main(int argc, char** argv) {
     aio.aio_buf = buf;
     aio.aio_nbytes = 128;
     aio.aio_reqprio = 0;
-    aio.aio_sigevent.sigev_notify = SIGEV_SIGNAL;
+    aio.aio_sigevent.sigev_notify = SIGEV_THREAD;
+    aio.aio_sigevent.sigev_notify_function = (void*)callback;
     aio.aio_sigevent.sigev_signo = SIGUSR1;
     aio.aio_lio_opcode = LIO_READ;
     signal(SIGUSR1, callback);
