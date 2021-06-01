@@ -7,3 +7,4 @@ compile_all:
 	gcc -Wall ./04-read-nonblock.c -o ./04-read-nonblock
 	gcc -Wall ./05-read-sigio.c -o ./05-read-sigio
 	gcc -Wall ./06-read-aio.c -o ./06-read-aio
+	gcc -Wall ./server.c -o ./server
